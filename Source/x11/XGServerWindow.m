@@ -3284,8 +3284,8 @@ swapColors(unsigned char *image_data, NSBitmapImageRep *rep)
 			 windowNumber: win
 			      context: GSCurrentContext()
 			      subtype: GSAppKitWindowResized
-				data1: rect.size.width /scale
-				data2: rect.size.height /scale];
+				data1: rect.size.width / scale
+				data2: rect.size.height / scale];
       [nswin sendEvent: e];
     }
   else if (move == YES)
