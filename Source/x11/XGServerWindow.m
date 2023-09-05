@@ -3274,23 +3274,25 @@ swapColors(unsigned char *image_data, NSBitmapImageRep *rep)
   nswin = GSWindowWithNumber(win);
   if (resize == YES)
     {
+    CGFloat scale = [nswin userSpaceScaleFactor];
       NSDebugLLog(@"Moving", @"Fake size %lu - %@", window->number,
 	NSStringFromSize(rect.size));
       e = [NSEvent otherEventWithType: NSAppKitDefined
-			     location: rect.origin
+			     location: NSMakePoint(rect.origin.x / scale, rect.origin.y / scale)
 			modifierFlags: 0
 			    timestamp: 0
 			 windowNumber: win
 			      context: GSCurrentContext()
 			      subtype: GSAppKitWindowResized
-				data1: rect.size.width
-				data2: rect.size.height];
+				data1: rect.size.width /scale
+				data2: rect.size.height /scale];
       [nswin sendEvent: e];
     }
   else if (move == YES)
     {
       NSDebugLLog(@"Moving", @"Fake move %lu - %@", window->number,
 	NSStringFromPoint(rect.origin));
+      CGFloat scale = [nswin userSpaceScaleFactor];
       e = [NSEvent otherEventWithType: NSAppKitDefined
 			     location: NSZeroPoint
 			modifierFlags: 0
@@ -3298,8 +3300,8 @@ swapColors(unsigned char *image_data, NSBitmapImageRep *rep)
 			 windowNumber: win
 			      context: GSCurrentContext()
 			      subtype: GSAppKitWindowMoved
-				data1: rect.origin.x
-				data2: rect.origin.y];
+				data1: rect.origin.x / scale
+				data2: rect.origin.y / scale];
       [nswin sendEvent: e];
     }
 }
