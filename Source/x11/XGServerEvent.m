@@ -542,8 +542,9 @@ posixFileDescriptor: (NSPosixFileDescriptor*)fileDescriptor
           generic.cachedWindow = [XGServer _windowForXWindow: xWin];
         if (cWin == 0)
           break;
-        eventLocation.x = xEvent.xbutton.x;
-        eventLocation.y = xEvent.xbutton.y;
+        CGFloat scale = [GSWindowWithNumber(cWin->number) userSpaceScaleFactor];
+        eventLocation.x = xEvent.xbutton.x / scale;
+        eventLocation.y = xEvent.xbutton.y / scale;
         eventLocation = [self _XPointToOSPoint: eventLocation
                                            for: cWin];
 
@@ -571,7 +572,7 @@ posixFileDescriptor: (NSPosixFileDescriptor*)fileDescriptor
 
         // create NSEvent
         e = [NSEvent mouseEventWithType: eventType
-                     location: eventLocation
+                     location: NSMakePoint(eventLocation.x / scale, eventLocation.y / scale)
                      modifierFlags: eventFlags
          timestamp: (NSTimeInterval)generic.lastClick / 1000.0
                      windowNumber: cWin->number
@@ -580,8 +581,8 @@ posixFileDescriptor: (NSPosixFileDescriptor*)fileDescriptor
                      clickCount: clickCount
                      pressure: 1.0
                      buttonNumber: buttonNumber /* FIXME */
-                     deltaX: deltaX
-                     deltaY: deltaY
+                     deltaX: deltaX /* Unsure if this should laso be divided by scale */
+                     deltaY: deltaY /* Unsure if this should laso be divided by scale */
                      deltaZ: 0.];
         break;
 
@@ -638,13 +639,14 @@ posixFileDescriptor: (NSPosixFileDescriptor*)fileDescriptor
           generic.cachedWindow = [XGServer _windowForXWindow: xWin];
         if (cWin == 0)
           break;
-        eventLocation.x = xEvent.xbutton.x;
-        eventLocation.y = xEvent.xbutton.y;
+        CGFloat scale = [GSWindowWithNumber(cWin->number) userSpaceScaleFactor];
+        eventLocation.x = xEvent.xbutton.x / scale;
+        eventLocation.y = xEvent.xbutton.y / scale;
         eventLocation = [self _XPointToOSPoint: eventLocation
                                            for: cWin];
 
         e = [NSEvent mouseEventWithType: eventType
-                     location: eventLocation
+                     location: NSMakePoint(eventLocation.x / scale, eventLocation.y / scale)
                      modifierFlags: eventFlags
                      timestamp: (NSTimeInterval)generic.lastTime / 1000.0
                      windowNumber: cWin->number
@@ -812,8 +814,9 @@ posixFileDescriptor: (NSPosixFileDescriptor*)fileDescriptor
               time = XDND_POSITION_TIME(&xEvent);
               action = XDND_POSITION_ACTION(&xEvent);
               operation = GSDragOperationForAction(action);
+              CGFloat scale = [GSWindowWithNumber(cWin->number) userSpaceScaleFactor];
               e = [NSEvent otherEventWithType: NSAppKitDefined
-                           location: eventLocation
+                           location: NSMakePoint(eventLocation.x / scale, eventLocation.y / scale)
                            modifierFlags: 0
                            timestamp: time / 1000.0
                            windowNumber: cWin->number
@@ -937,7 +940,7 @@ posixFileDescriptor: (NSPosixFileDescriptor*)fileDescriptor
             generic.cachedWindow
               = [XGServer _windowForXWindow:xEvent.xconfigure.window];
           }
-
+        
         if (cWin != 0)
           {
             NSRect r, x, n, h;
@@ -1005,19 +1008,19 @@ posixFileDescriptor: (NSPosixFileDescriptor*)fileDescriptor
             if (!NSEqualSizes(r.size, x.size))
               {
 		NSEvent *r;
-
+		CGFloat scale = [GSWindowWithNumber(cWin->number) userSpaceScaleFactor];
                 /* Resize events move the origin. There's no good
                    place to pass this info back, so we put it in
                    the event location field */
                 r = [NSEvent otherEventWithType: NSAppKitDefined
-                             location: n.origin
+                             location: NSMakePoint(n.origin.x / scale, n.origin.y / scale)
                              modifierFlags: eventFlags
                              timestamp: ts / 1000.0
                              windowNumber: cWin->number
                              context: gcontext
                              subtype: GSAppKitWindowResized
-                             data1: n.size.width
-                             data2: n.size.height];
+                             data1: n.size.width / scale
+                             data2: n.size.height / scale];
 
 		/* We don't add this event in event_queue, to don't delay
 		 * its sent. Instead, send it directly to the window. If not,
@@ -1030,7 +1033,7 @@ posixFileDescriptor: (NSPosixFileDescriptor*)fileDescriptor
               {
 		NSEvent *r;
                 NSWindow *window;
-
+                CGFloat scale = [GSWindowWithNumber(cWin->number) userSpaceScaleFactor];
                 r = [NSEvent otherEventWithType: NSAppKitDefined
                              location: eventLocation
                              modifierFlags: eventFlags
@@ -1038,8 +1041,8 @@ posixFileDescriptor: (NSPosixFileDescriptor*)fileDescriptor
                              windowNumber: cWin->number
                              context: gcontext
                              subtype: GSAppKitWindowMoved
-                             data1: n.origin.x
-                             data2: n.origin.y];
+                             data1: n.origin.x / scale
+                             data2: n.origin.y / scale];
 
 		/* We don't add this event in event_queue, to don't delay
 		 * its sent. Instead, send it directly to the window. If not,
@@ -1200,14 +1203,14 @@ posixFileDescriptor: (NSPosixFileDescriptor*)fileDescriptor
                         rectangle.x, rectangle.y, rectangle.width, rectangle.height)
                              for: cWin];
                 e = [NSEvent otherEventWithType: NSAppKitDefined
-                             location: rect.origin
+                             location: NSMakePoint(rect.origin.x / scale, rect.origin.y / scale)
                              modifierFlags: eventFlags
                              timestamp: ts / 1000.0
                              windowNumber: cWin->number
                              context: gcontext
                              subtype: GSAppKitRegionExposed
-                             data1: rect.size.width
-                             data2: rect.size.height];
+                             data1: rect.size.width / scale
+                             data2: rect.size.height / scale];
               }
               
 #endif
@@ -1569,9 +1572,9 @@ posixFileDescriptor: (NSPosixFileDescriptor*)fileDescriptor
                                              for: cWin];
           deltaX += eventLocation.x;
           deltaY += eventLocation.y;
-
+	  CGFloat scale2 = [GSWindowWithNumber(cWin->number) userSpaceScaleFactor];
           e = [NSEvent mouseEventWithType: eventType
-                       location: eventLocation
+                       location: NSMakePoint(eventLocation.x / scale2, eventLocation.y / scale2)
                        modifierFlags: eventFlags
                        timestamp: (NSTimeInterval)generic.lastTime / 1000.0
                        windowNumber: cWin->number
@@ -1580,8 +1583,8 @@ posixFileDescriptor: (NSPosixFileDescriptor*)fileDescriptor
                        clickCount: clickCount
                        pressure: 1.0
                        buttonNumber: 0 /* FIXME */
-                       deltaX: deltaX
-                       deltaY: deltaY
+                       deltaX: deltaX /* Unsure if this should also be / scale */
+                       deltaY: deltaY /* Unsure if this should also be / scale */
                        deltaZ: 0];
           break;
         }
