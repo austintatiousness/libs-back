@@ -543,8 +543,8 @@ posixFileDescriptor: (NSPosixFileDescriptor*)fileDescriptor
         if (cWin == 0)
           break;
         CGFloat scale = [GSWindowWithNumber(cWin->number) userSpaceScaleFactor];
-        eventLocation.x = xEvent.xbutton.x / scale;
-        eventLocation.y = xEvent.xbutton.y / scale;
+        eventLocation.x = xEvent.xbutton.x;
+        eventLocation.y = xEvent.xbutton.y;
         eventLocation = [self _XPointToOSPoint: eventLocation
                                            for: cWin];
 
@@ -639,7 +639,7 @@ posixFileDescriptor: (NSPosixFileDescriptor*)fileDescriptor
           generic.cachedWindow = [XGServer _windowForXWindow: xWin];
         if (cWin == 0)
           break;
-        CGFloat scale = [GSWindowWithNumber(cWin->number) userSpaceScaleFactor];
+        scale = [GSWindowWithNumber(cWin->number) userSpaceScaleFactor];
         eventLocation.x = xEvent.xbutton.x / scale;
         eventLocation.y = xEvent.xbutton.y / scale;
         eventLocation = [self _XPointToOSPoint: eventLocation
@@ -1198,7 +1198,7 @@ posixFileDescriptor: (NSPosixFileDescriptor*)fileDescriptor
               {
                 NSRect rect;
                 NSTimeInterval ts = (NSTimeInterval)generic.lastMotion;
-                
+                scale = [GSWindowWithNumber(cWin->number) userSpaceScaleFactor];
                 rect = [self _XWinRectToOSWinRect: NSMakeRect(
                         rectangle.x, rectangle.y, rectangle.width, rectangle.height)
                              for: cWin];
@@ -1572,7 +1572,7 @@ posixFileDescriptor: (NSPosixFileDescriptor*)fileDescriptor
                                              for: cWin];
           deltaX += eventLocation.x;
           deltaY += eventLocation.y;
-	  CGFloat scale2 = [GSWindowWithNumber(cWin->number) userSpaceScaleFactor];
+          CGFloat scale2 = [GSWindowWithNumber(cWin->number) userSpaceScaleFactor];
           e = [NSEvent mouseEventWithType: eventType
                        location: NSMakePoint(eventLocation.x / scale2, eventLocation.y / scale2)
                        modifierFlags: eventFlags
