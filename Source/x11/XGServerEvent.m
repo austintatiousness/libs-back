@@ -581,8 +581,8 @@ posixFileDescriptor: (NSPosixFileDescriptor*)fileDescriptor
                      clickCount: clickCount
                      pressure: 1.0
                      buttonNumber: buttonNumber /* FIXME */
-                     deltaX: deltaX /* Unsure if this should laso be divided by scale */
-                     deltaY: deltaY /* Unsure if this should laso be divided by scale */
+                     deltaX: deltaX / scale /* Unsure if this should laso be divided by scale */
+                     deltaY: deltaY / scale /* Unsure if this should laso be divided by scale */
                      deltaZ: 0.];
         break;
 
@@ -640,8 +640,8 @@ posixFileDescriptor: (NSPosixFileDescriptor*)fileDescriptor
         if (cWin == 0)
           break;
         scale = [GSWindowWithNumber(cWin->number) userSpaceScaleFactor];
-        eventLocation.x = xEvent.xbutton.x / scale;
-        eventLocation.y = xEvent.xbutton.y / scale;
+        eventLocation.x = xEvent.xbutton.x;
+        eventLocation.y = xEvent.xbutton.y;
         eventLocation = [self _XPointToOSPoint: eventLocation
                                            for: cWin];
 
@@ -1583,8 +1583,8 @@ posixFileDescriptor: (NSPosixFileDescriptor*)fileDescriptor
                        clickCount: clickCount
                        pressure: 1.0
                        buttonNumber: 0 /* FIXME */
-                       deltaX: deltaX /* Unsure if this should also be / scale */
-                       deltaY: deltaY /* Unsure if this should also be / scale */
+                       deltaX: deltaX / scale /* Unsure if this should also be / scale */
+                       deltaY: deltaY / scale /* Unsure if this should also be / scale */
                        deltaZ: 0];
           break;
         }
