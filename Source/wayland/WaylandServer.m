@@ -420,7 +420,7 @@ WaylandServer (WindowOps)
 
   // creates a buffer for the window
   [self _setWindowOwnedByServer:(int) window->window_id];
-
+  CGFloat scale = [(GSWindowWithNumber(window->window_id)) userSpaceScaleFactor];
   if (altered)
     {
       NSEvent *ev =
@@ -431,8 +431,8 @@ WaylandServer (WindowOps)
 		       windowNumber:(int) window->window_id
 			    context:GSCurrentContext()
 			    subtype:GSAppKitWindowMoved
-			      data1:window->pos_x
-			      data2:WaylandToNS(window, window->pos_y)];
+			      data1:window->pos_x / scale
+			      data2:WaylandToNS(window, window->pos_y) / scale];
       [(GSWindowWithNumber(window->window_id)) sendEvent:ev];
       NSDebugLog(@"window: notifying of move=%fx%f", window->pos_x,
 		 WaylandToNS(window, window->pos_y));
@@ -581,7 +581,7 @@ WaylandServer (WindowOps)
   NSRect wframe;
   BOOL	 resize = NO;
   BOOL	 move = NO;
-
+  CGFloat scale = [(GSWindowWithNumber(window->window_id)) userSpaceScaleFactor];
   frame = [(GSWindowWithNumber(window->window_id)) frame];
   if (NSEqualRects(rect, frame) == YES)
     return;
@@ -630,8 +630,8 @@ WaylandServer (WindowOps)
 					 windowNumber:win
 					      context:GSCurrentContext()
 					      subtype:GSAppKitWindowResized
-						data1:rect.size.width
-						data2:rect.size.height];
+						data1:rect.size.width / scale
+						data2:rect.size.height / scale];
 	    NSDebugLog(@"notify resize=%fx%f", rect.size.width,
 		       rect.size.height);
 	    [(GSWindowWithNumber(window->window_id)) sendEvent:ev];
