@@ -100,7 +100,7 @@ xdg_toplevel_configure(void *data, struct xdg_toplevel *xdg_toplevel,
 
       xdg_surface_set_window_geometry(window->xdg_surface, 0, 0, window->width,
 				      window->height);
-
+      CGFloat scale = [(GSWindowWithNumber(window->window_id)) userSpaceScaleFactor];
       NSEvent *ev = [NSEvent otherEventWithType:NSAppKitDefined
 				       location:NSMakePoint(0.0, 0.0)
 				  modifierFlags:0
@@ -108,8 +108,8 @@ xdg_toplevel_configure(void *data, struct xdg_toplevel *xdg_toplevel,
 				   windowNumber:window->window_id
 					context:GSCurrentContext()
 					subtype:GSAppKitWindowResized
-					  data1:window->width
-					  data2:window->height];
+					  data1:window->width / scale
+					  data2:window->height / scale];
       [(GSWindowWithNumber(window->window_id)) sendEvent:ev];
     }
   NSDebugLog(@"[%d] notify resize from backend=%ldx%ld", window->window_id,
