@@ -83,9 +83,9 @@ pointer_handle_enter(void *data, struct wl_pointer *pointer, uint32_t serial,
 
       gcontext = GSCurrentContext();
       eventLocation = NSMakePoint(sx, window->height - sy);
-
+      CGFloat scale = [(GSWindowWithNumber(window->window_id)) userSpaceScaleFactor];
       event = [NSEvent mouseEventWithType:NSMouseEntered
-				 location:eventLocation
+				 location:NSMakePoint(eventLocation.x / scale, eventLocation.y / scale)
 			    modifierFlags:wlconfig->modifiers
 				timestamp:wlconfig->pointer.last_timestamp
 			     windowNumber:window->window_id
@@ -94,8 +94,8 @@ pointer_handle_enter(void *data, struct wl_pointer *pointer, uint32_t serial,
 			       clickCount:0
 				 pressure:0.0
 			     buttonNumber:0
-				   deltaX:deltaX
-				   deltaY:deltaY
+				   deltaX:deltaX / scale
+				   deltaY:deltaY / scale
 				   deltaZ:0.];
 
       [GSCurrentServer() postEvent:event atStart:NO];
@@ -138,10 +138,10 @@ pointer_handle_leave(void *data, struct wl_pointer *pointer, uint32_t serial,
           NSGraphicsContext *gcontext;
 
           gcontext = GSCurrentContext();
-
+          CGFloat scale = [(GSWindowWithNumber(window->window_id)) userSpaceScaleFactor];
           eventLocation = NSMakePoint(wlconfig->pointer.x, wlconfig->pointer.y);
           event = [NSEvent mouseEventWithType:NSMouseExited
-                          location:eventLocation
+                          location:NSMakePoint(eventLocation.x / scale, NSMakePoint.y / scale)
                       modifierFlags:0
                           timestamp:wlconfig->pointer.last_timestamp
                       windowNumber:window->window_id
@@ -203,7 +203,7 @@ pointer_handle_motion(void *data, struct wl_pointer *pointer, uint32_t time,
       eventFlags = wlconfig->modifiers;
 
       eventType = NSMouseMoved;
-
+      CGFloat scale = [(GSWindowWithNumber(window->window_id)) userSpaceScaleFactor];
       if (wlconfig->pointer.button_state == WL_POINTER_BUTTON_STATE_PRESSED)
         {
 
@@ -220,9 +220,9 @@ pointer_handle_motion(void *data, struct wl_pointer *pointer, uint32_t time,
                 break;
             }
         }
-
+      CGFloat scale = [(GSWindowWithNumber(window->window_id)) userSpaceScaleFactor];
       event = [NSEvent mouseEventWithType:eventType
-				 location:eventLocation
+				 location:NSMakePoint(eventLocation.x / scale, eventLocation.y / scale)
 			    modifierFlags:eventFlags
 				timestamp:wlconfig->pointer.last_timestamp
 			     windowNumber:(int) focused_window->window_id
@@ -405,9 +405,9 @@ pointer_handle_button(void *data, struct wl_pointer *pointer, uint32_t serial,
      here. If this is truly correct, please update this comment to document
      the correctness of doing so. */
   buttonNumber = button;
-
+  CGFloat scale = [(GSWindowWithNumber(window->window_id)) userSpaceScaleFactor];
   event = [NSEvent mouseEventWithType:eventType
-			     location:eventLocation
+			     location:NSMakePoint(eventLocation.x / scale,  eventLocation.y / scale)
 			modifierFlags:eventFlags
 			    timestamp:timestamp
 			 windowNumber:(int) window->window_id
@@ -416,8 +416,8 @@ pointer_handle_button(void *data, struct wl_pointer *pointer, uint32_t serial,
 			   clickCount:clickCount
 			     pressure:1.0
 			 buttonNumber:buttonNumber
-			       deltaX:deltaX /* FIXME unused */
-			       deltaY:deltaY /* FIXME unused */
+			       deltaX:deltaX / scale /* FIXME unused */
+			       deltaY:deltaY / scale /* FIXME unused */
 			       deltaZ:0.];
 
   [GSCurrentServer() postEvent:event atStart:NO];
@@ -514,9 +514,9 @@ pointer_handle_axis(void *data, struct wl_pointer *pointer, uint32_t time,
      If this is truly correct, please update this comment to document
      the correctness of doing so. */
   buttonNumber = 0;
-
+  CGFloat scale = [(GSWindowWithNumber(window->window_id)) userSpaceScaleFactor];
   event = [NSEvent mouseEventWithType:eventType
-			     location:eventLocation
+			     location:NSMakePoint(eventLocation.x / scale, eventLocation.y / scale)
 			modifierFlags:eventFlags
 			    timestamp:(NSTimeInterval) time / 1000.0
 			 windowNumber:(int) window->window_id
@@ -525,8 +525,8 @@ pointer_handle_axis(void *data, struct wl_pointer *pointer, uint32_t time,
 			   clickCount:clickCount
 			     pressure:1.0
 			 buttonNumber:buttonNumber
-			       deltaX:deltaX
-			       deltaY:deltaY
+			       deltaX:deltaX / scale
+			       deltaY:deltaY / scale
 			       deltaZ:0.];
 
   [GSCurrentServer() postEvent:event atStart:NO];
